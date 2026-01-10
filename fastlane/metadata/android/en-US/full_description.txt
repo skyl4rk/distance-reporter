@@ -1,0 +1,14 @@
+Distance Reporter tracks your distance traveled using GPS and announces your progress via text-to-speech at configurable intervals.
+
+Features:
+• GPS-based distance tracking
+• Audible distance announcements at configurable intervals
+• Support for kilometers, miles, and nautical miles
+• Calendar view showing daily distance history
+• Pause and mute controls
+• Real-time speed display
+• Runs as a foreground service for reliable tracking
+• No Google Play Services required
+• No ads, no tracking, no internet permission required
+
+Perfect for walkers, runners, cyclists, and anyone who wants to track their daily movement without looking at their phone.

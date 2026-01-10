@@ -1,0 +1,67 @@
+I want to develop an android app that will be distributed by F-Droid.
+
+The intended user is someone who walks, bicycles or otherwise moves throughout the day, and who wants to know the distance traveled.
+
+The app will be called "Distance Reporter".
+ 
+The app will speak out an audible report of the distance a user has walked or traveled at certain intervals. The app will show the total distance traveled throughout the day.
+
+Main page of the app:
+Show name of app in small script: "Distance Reporter"
+Show in large script the distance traveled, including the unit.
+Pause button: pauses adding distance to the odometer but maintains the current distance in memory. It also pauses audible reporting. Pressing the activated pause button disactivates pause and resumes distance measurement and audible reporting of distance traveled.
+Mute button: Stops audible reporting but continues to measure distance traveled.
+Configuration Menu Button: A link to the configuration page.
+Calendar Button: A link to the calendar page.
+
+The configuration page will show:
+
+Volume control slide bar
+Select unit of measurement:
+    Miles
+    Kilometers
+    Nautical Miles
+Interval - the incremental distance which the app will report the distance traveled.
+Reset button: Resets the current day distance to zero, this should be in an area not susceptible to being pushed inadvertently.
+
+
+The Calendar page will show a multi-month calendar with the daily total distance traveled.
+
+
+Operation
+
+The app will audibly speak out the distance traveled at each interval of distance traveled, as set by the user in the configuration menu.
+
+The app will allow other phone apps using sound to continue to operate when it speaks out the distance, so that if a user is listening to music, it will play the sound of both music and the distance report.
+
+The app will speak out the numeric distance with an abbreviated form of the unit:
+    "Miles"
+    "K M"
+    "Miles"
+
+The app will use a decimal method of speaking out the distance, for example:
+    "One point five K M"
+    "Three point two miles"
+
+The app will use the location function of the phone to measure distance traveled.
+
+Reset of measured distance to zero:
+    Every day at midnight the distance counter will be reset to zero.
+    The distance counter can be set to zero manually in the configuration menu.
+
+The app will store the total distance traveled each day in a display calendar.
+
+The app will be designed to use as little battery power as possible.
+
+The app will continue to report distance when other apps are in use.
+
+The app will work when the phone screen is not on.
+
+Default Settings:
+The default settings will be:
+Units: Kilometer
+Interval: 0.5 kilometer
+
+ 
+
+
