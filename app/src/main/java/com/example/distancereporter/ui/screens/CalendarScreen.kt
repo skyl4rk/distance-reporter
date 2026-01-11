@@ -185,7 +185,7 @@ private fun DayCell(
     val isToday = date == LocalDate.now()
     val hasDistance = distanceMeters != null && distanceMeters > 0
 
-    Column(
+    Box(
         modifier = modifier
             .aspectRatio(1f)
             .background(
@@ -196,26 +196,33 @@ private fun DayCell(
                 },
                 shape = MaterialTheme.shapes.small
             )
-            .padding(4.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+            .padding(2.dp),
+        contentAlignment = Alignment.Center
     ) {
-        Text(
-            text = date.dayOfMonth.toString(),
-            style = MaterialTheme.typography.bodyMedium,
-            color = if (isToday)
-                MaterialTheme.colorScheme.onPrimaryContainer
-            else
-                MaterialTheme.colorScheme.onSurface
-        )
-
         if (hasDistance) {
+            // Show date and distance on same line for better fit with large text
             val distanceInUnits = unit.convertFromMeters(distanceMeters!!)
             Text(
-                text = String.format("%.1f", distanceInUnits),
+                text = "${date.dayOfMonth}:${String.format("%.1f", distanceInUnits)}",
                 style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSecondaryContainer
+                color = if (isToday)
+                    MaterialTheme.colorScheme.onPrimaryContainer
+                else
+                    MaterialTheme.colorScheme.onSecondaryContainer,
+                maxLines = 1,
+                softWrap = false
+            )
+        } else {
+            Text(
+                text = date.dayOfMonth.toString(),
+                style = MaterialTheme.typography.bodySmall,
+                color = if (isToday)
+                    MaterialTheme.colorScheme.onPrimaryContainer
+                else
+                    MaterialTheme.colorScheme.onSurface,
+                maxLines = 1
             )
         }
     }
 }
+

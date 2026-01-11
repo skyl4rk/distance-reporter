@@ -5,7 +5,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -39,28 +38,39 @@ fun MainScreen(
 
     LaunchedEffect(Unit) {
         while (true) {
-            currentTime = LocalTime.now()
-            val now = System.currentTimeMillis()
+            try {
+                currentTime = LocalTime.now()
+                val now = System.currentTimeMillis()
 
-            // Add current distance sample
-            distanceSamples.add(DistanceSample(preferences.currentDistanceMeters, now))
+                // Add current distance sample
+                distanceSamples.add(DistanceSample(preferences.currentDistanceMeters, now))
 
-            // Remove samples older than 60 seconds
-            val cutoff = now - 60_000
-            distanceSamples.removeAll { it.timeMillis < cutoff }
-
-            // Calculate average speed (units per hour) over the last minute
-            if (distanceSamples.size >= 2) {
-                val oldest = distanceSamples.first()
-                val newest = distanceSamples.last()
-                val distanceDeltaMeters = newest.distanceMeters - oldest.distanceMeters
-                val timeDeltaSeconds = (newest.timeMillis - oldest.timeMillis) / 1000.0
-
-                if (timeDeltaSeconds > 0 && distanceDeltaMeters >= 0) {
-                    // Convert to units per hour
-                    val distanceDeltaUnits = preferences.unit.convertFromMeters(distanceDeltaMeters)
-                    averageSpeed = (distanceDeltaUnits / timeDeltaSeconds) * 3600.0
+                // Remove samples older than 60 seconds (use iterator for safe removal)
+                val cutoff = now - 60_000
+                val iterator = distanceSamples.iterator()
+                while (iterator.hasNext()) {
+                    if (iterator.next().timeMillis < cutoff) {
+                        iterator.remove()
+                    }
                 }
+
+                // Calculate average speed (units per hour) over the last minute
+                if (distanceSamples.size >= 2) {
+                    val oldest = distanceSamples.firstOrNull()
+                    val newest = distanceSamples.lastOrNull()
+                    if (oldest != null && newest != null) {
+                        val distanceDeltaMeters = newest.distanceMeters - oldest.distanceMeters
+                        val timeDeltaSeconds = (newest.timeMillis - oldest.timeMillis) / 1000.0
+
+                        if (timeDeltaSeconds > 0 && distanceDeltaMeters >= 0) {
+                            // Convert to units per hour
+                            val distanceDeltaUnits = preferences.unit.convertFromMeters(distanceDeltaMeters)
+                            averageSpeed = (distanceDeltaUnits / timeDeltaSeconds) * 3600.0
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                // Silently handle any errors to prevent crash
             }
 
             delay(1000)
@@ -77,21 +87,35 @@ fun MainScreen(
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.Top
         ) {
             // Speed display
-            Text(
-                text = "Speed: ${String.format("%.1f", averageSpeed)} ${preferences.unit.abbreviation}/h",
-                style = MaterialTheme.typography.titleLarge,
-                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f)
-            )
+            Column(horizontalAlignment = Alignment.Start) {
+                Text(
+                    text = "Speed:",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f)
+                )
+                Text(
+                    text = "${String.format("%.1f", averageSpeed)} ${preferences.unit.abbreviation}/h",
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f)
+                )
+            }
 
             // Time display
-            Text(
-                text = "Time: ${currentTime.format(timeFormatter)}",
-                style = MaterialTheme.typography.titleLarge,
-                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f)
-            )
+            Column(horizontalAlignment = Alignment.End) {
+                Text(
+                    text = "Time:",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f)
+                )
+                Text(
+                    text = currentTime.format(timeFormatter),
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f)
+                )
+            }
         }
 
         Spacer(modifier = Modifier.weight(1f))
