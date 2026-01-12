@@ -83,32 +83,33 @@ fun MainScreen(
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Header row with speed and time
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.Top
-        ) {
-            // Speed display
-            Column(horizontalAlignment = Alignment.Start) {
+        // Header with speed and time
+        Column {
+            // Labels row
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
                 Text(
                     text = "Speed:",
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f)
                 )
                 Text(
-                    text = "${String.format("%.1f", averageSpeed)} ${preferences.unit.abbreviation}/h",
-                    style = MaterialTheme.typography.titleLarge,
-                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f)
-                )
-            }
-
-            // Time display
-            Column(horizontalAlignment = Alignment.End) {
-                Text(
                     text = "Time:",
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f)
+                )
+            }
+            // Values row
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = "${String.format("%.1f", averageSpeed)} ${preferences.unit.abbreviation}/h",
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f)
                 )
                 Text(
                     text = currentTime.format(timeFormatter),

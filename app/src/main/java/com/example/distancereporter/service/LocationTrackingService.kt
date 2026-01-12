@@ -221,7 +221,7 @@ class LocationTrackingService : Service(), TextToSpeech.OnInitListener {
 
     private fun announceDistance(distance: Double, unit: DistanceUnit, volume: Float) {
         val formattedDistance = formatDistanceForSpeech(distance)
-        val text = "$formattedDistance ${unit.spokenName}"
+        val text = "distance: $formattedDistance ${unit.spokenName}"
 
         // Set volume (audio ducking allows other audio to continue)
         textToSpeech.setSpeechRate(1.0f)

@@ -1,5 +1,6 @@
 package com.example.distancereporter.ui.navigation
 
+import android.app.Activity
 import android.speech.tts.TextToSpeech
 import androidx.compose.runtime.*
 import androidx.compose.ui.platform.LocalContext
@@ -9,6 +10,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.distancereporter.data.DistanceDatabase
 import com.example.distancereporter.data.UserPreferences
 import com.example.distancereporter.data.UserPreferencesRepository
+import com.example.distancereporter.service.LocationTrackingService
 import com.example.distancereporter.ui.screens.CalendarScreen
 import com.example.distancereporter.ui.screens.ConfigScreen
 import com.example.distancereporter.ui.screens.MainScreen
@@ -123,6 +125,10 @@ fun DistanceReporterNavHost() {
                             "test"
                         )
                     }
+                },
+                onExitApp = {
+                    LocationTrackingService.stop(context)
+                    (context as? Activity)?.finish()
                 },
                 onNavigateBack = {
                     navController.popBackStack()

@@ -22,10 +22,12 @@ fun ConfigScreen(
     onIntervalChange: (Double) -> Unit,
     onResetDistance: () -> Unit,
     onTestVoice: () -> Unit,
+    onExitApp: () -> Unit,
     onNavigateBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     var showResetDialog by remember { mutableStateOf(false) }
+    var showExitDialog by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -87,6 +89,23 @@ fun ConfigScreen(
                     Text("Reset Distance to Zero")
                 }
             }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Exit button
+            Box(
+                modifier = Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.Center
+            ) {
+                OutlinedButton(
+                    onClick = { showExitDialog = true },
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        contentColor = MaterialTheme.colorScheme.error
+                    )
+                ) {
+                    Text("Exit App")
+                }
+            }
         }
     }
 
@@ -107,6 +126,29 @@ fun ConfigScreen(
             },
             dismissButton = {
                 TextButton(onClick = { showResetDialog = false }) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
+
+    if (showExitDialog) {
+        AlertDialog(
+            onDismissRequest = { showExitDialog = false },
+            title = { Text("Exit App") },
+            text = { Text("Are you sure you want to exit? Distance tracking will stop.") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showExitDialog = false
+                        onExitApp()
+                    }
+                ) {
+                    Text("Exit", color = MaterialTheme.colorScheme.error)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showExitDialog = false }) {
                     Text("Cancel")
                 }
             }
