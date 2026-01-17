@@ -36,6 +36,9 @@ fun MainScreen(
     val distanceSamples = remember { mutableStateListOf<DistanceSample>() }
     var averageSpeed by remember { mutableStateOf(0.0) }
 
+    // Use rememberUpdatedState to capture latest distance value in the coroutine
+    val currentDistanceMeters by rememberUpdatedState(preferences.currentDistanceMeters)
+
     LaunchedEffect(Unit) {
         while (true) {
             try {
@@ -43,7 +46,7 @@ fun MainScreen(
                 val now = System.currentTimeMillis()
 
                 // Add current distance sample
-                distanceSamples.add(DistanceSample(preferences.currentDistanceMeters, now))
+                distanceSamples.add(DistanceSample(currentDistanceMeters, now))
 
                 // Remove samples older than 60 seconds (use iterator for safe removal)
                 val cutoff = now - 60_000

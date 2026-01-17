@@ -20,6 +20,7 @@ fun ConfigScreen(
     onVolumeChange: (Float) -> Unit,
     onUnitChange: (DistanceUnit) -> Unit,
     onIntervalChange: (Double) -> Unit,
+    onAnnounceTimeChange: (Boolean) -> Unit,
     onResetDistance: () -> Unit,
     onTestVoice: () -> Unit,
     onExitApp: () -> Unit,
@@ -72,6 +73,24 @@ fun ConfigScreen(
                 unit = preferences.unit,
                 onIntervalChange = onIntervalChange
             )
+
+            Divider()
+
+            // Time announcement toggle
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = "Announce Time Every Quarter Hour",
+                    style = MaterialTheme.typography.titleMedium
+                )
+                Switch(
+                    checked = preferences.announceTime,
+                    onCheckedChange = onAnnounceTimeChange
+                )
+            }
 
             Spacer(modifier = Modifier.height(16.dp))
 

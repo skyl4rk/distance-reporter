@@ -18,6 +18,7 @@ class UserPreferencesRepository(private val context: Context) {
         val IS_MUTED = booleanPreferencesKey("is_muted")
         val IS_PAUSED = booleanPreferencesKey("is_paused")
         val CURRENT_DISTANCE_METERS = doublePreferencesKey("current_distance_meters")
+        val ANNOUNCE_TIME = booleanPreferencesKey("announce_time")
     }
 
     val userPreferences: Flow<UserPreferences> = context.dataStore.data.map { preferences ->
@@ -29,7 +30,8 @@ class UserPreferencesRepository(private val context: Context) {
             volume = preferences[PreferencesKeys.VOLUME] ?: 1.0f,
             isMuted = preferences[PreferencesKeys.IS_MUTED] ?: false,
             isPaused = preferences[PreferencesKeys.IS_PAUSED] ?: false,
-            currentDistanceMeters = preferences[PreferencesKeys.CURRENT_DISTANCE_METERS] ?: 0.0
+            currentDistanceMeters = preferences[PreferencesKeys.CURRENT_DISTANCE_METERS] ?: 0.0,
+            announceTime = preferences[PreferencesKeys.ANNOUNCE_TIME] ?: false
         )
     }
 
@@ -74,6 +76,12 @@ class UserPreferencesRepository(private val context: Context) {
             preferences[PreferencesKeys.CURRENT_DISTANCE_METERS] = 0.0
         }
     }
+
+    suspend fun updateAnnounceTime(announceTime: Boolean) {
+        context.dataStore.edit { preferences ->
+            preferences[PreferencesKeys.ANNOUNCE_TIME] = announceTime
+        }
+    }
 }
 
 data class UserPreferences(
@@ -82,7 +90,8 @@ data class UserPreferences(
     val volume: Float = 1.0f,
     val isMuted: Boolean = false,
     val isPaused: Boolean = false,
-    val currentDistanceMeters: Double = 0.0
+    val currentDistanceMeters: Double = 0.0,
+    val announceTime: Boolean = false
 ) {
     val currentDistanceInUnits: Double
         get() = unit.convertFromMeters(currentDistanceMeters)

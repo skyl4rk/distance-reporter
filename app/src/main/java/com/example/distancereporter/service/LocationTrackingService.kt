@@ -20,6 +20,7 @@ import com.example.distancereporter.data.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.first
 import java.time.LocalDate
+import java.time.LocalTime
 import java.util.*
 
 class LocationTrackingService : Service(), TextToSpeech.OnInitListener {
@@ -35,6 +36,8 @@ class LocationTrackingService : Service(), TextToSpeech.OnInitListener {
     private var lastLocationTime: Long = 0
     private var lastReportedDistance: Double = 0.0
     private var isTtsReady = false
+    private var lastAnnouncedQuarterHour: Int = -1
+    private var timeAnnouncementJob: Job? = null
 
     private val locationListener = object : LocationListener {
         override fun onLocationChanged(location: Location) {
@@ -63,6 +66,7 @@ class LocationTrackingService : Service(), TextToSpeech.OnInitListener {
         startForeground(NOTIFICATION_ID, createNotification())
         initializeLastReportedDistance()
         startLocationUpdates()
+        startTimeAnnouncementChecker()
         return START_STICKY
     }
 
@@ -107,17 +111,10 @@ class LocationTrackingService : Service(), TextToSpeech.OnInitListener {
 
     private fun startLocationUpdates() {
         try {
-            // Use GPS provider for best accuracy
+            // Use GPS provider only for accurate distance tracking
+            // Network provider causes double-counting when both fire for the same movement
             locationManager.requestLocationUpdates(
                 LocationManager.GPS_PROVIDER,
-                LOCATION_UPDATE_INTERVAL_MS,
-                LOCATION_UPDATE_MIN_DISTANCE_M,
-                locationListener
-            )
-
-            // Also use network provider as fallback
-            locationManager.requestLocationUpdates(
-                LocationManager.NETWORK_PROVIDER,
                 LOCATION_UPDATE_INTERVAL_MS,
                 LOCATION_UPDATE_MIN_DISTANCE_M,
                 locationListener
@@ -274,9 +271,72 @@ class LocationTrackingService : Service(), TextToSpeech.OnInitListener {
         )
     }
 
+    private fun startTimeAnnouncementChecker() {
+        timeAnnouncementJob?.cancel()
+        timeAnnouncementJob = serviceScope.launch {
+            while (isActive) {
+                checkAndAnnounceTime()
+                delay(30_000) // Check every 30 seconds
+            }
+        }
+    }
+
+    private suspend fun checkAndAnnounceTime() {
+        val preferences = preferencesRepository.userPreferences.first()
+
+        if (!preferences.announceTime || preferences.isMuted || !isTtsReady) {
+            return
+        }
+
+        val now = LocalTime.now()
+        val minute = now.minute
+
+        // Check if we're at a quarter hour (0, 15, 30, 45)
+        if (minute != 0 && minute != 15 && minute != 30 && minute != 45) {
+            return
+        }
+
+        // Calculate a unique identifier for this quarter hour
+        val quarterHourId = now.hour * 4 + minute / 15
+
+        // Don't repeat the same announcement
+        if (quarterHourId == lastAnnouncedQuarterHour) {
+            return
+        }
+
+        lastAnnouncedQuarterHour = quarterHourId
+        val timeText = formatTimeForSpeech(now.hour, minute)
+        Log.d(TAG, "Announcing time: $timeText")
+
+        val params = android.os.Bundle().apply {
+            putFloat(TextToSpeech.Engine.KEY_PARAM_VOLUME, preferences.volume)
+        }
+        textToSpeech.speak(timeText, TextToSpeech.QUEUE_ADD, params, "time_announcement")
+    }
+
+    private fun formatTimeForSpeech(hour: Int, minute: Int): String {
+        // Convert to 12-hour format
+        val hour12 = when {
+            hour == 0 -> 12
+            hour > 12 -> hour - 12
+            else -> hour
+        }
+
+        val hourWord = numberToWords(hour12)
+
+        return when (minute) {
+            0 -> "$hourWord o'clock"
+            15 -> "$hourWord fifteen"
+            30 -> "$hourWord thirty"
+            45 -> "$hourWord forty five"
+            else -> "$hourWord ${numberToWords(minute)}"
+        }
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         locationManager.removeUpdates(locationListener)
+        timeAnnouncementJob?.cancel()
         textToSpeech.shutdown()
         serviceScope.cancel()
     }

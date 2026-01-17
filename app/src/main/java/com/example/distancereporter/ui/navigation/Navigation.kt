@@ -111,6 +111,11 @@ fun DistanceReporterNavHost() {
                         preferencesRepository.updateInterval(interval)
                     }
                 },
+                onAnnounceTimeChange = { announceTime ->
+                    scope.launch {
+                        preferencesRepository.updateAnnounceTime(announceTime)
+                    }
+                },
                 onResetDistance = {
                     scope.launch {
                         preferencesRepository.resetCurrentDistance()
